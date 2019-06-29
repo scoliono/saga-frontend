@@ -1,16 +1,21 @@
-# sapper-template
+# saga-frontend
 
-The default [Sapper](https://github.com/sveltejs/sapper) template, with branches for Rollup and webpack. To clone it and get started:
+This is the frontend for the SAGA web app. It is written in JavaScript using Sapper / Svelte. It has to be used with the PHP backend (included in the `saga-backend` repository) which includes an API for user authentication, CRUD on profiles, etc.
+
+## Setup
+
+First, change the root URL to the backend API as it is given in `src/api.js`.
+
+Then run the following commands in terminal (assuming you already have Node.js):
 
 ```bash
-# for Rollup
-npx degit "sveltejs/sapper-template#rollup" my-app
-# for webpack
-npx degit "sveltejs/sapper-template#webpack" my-app
-cd my-app
-npm install # or yarn!
-npm run dev
+npm install
+npm run dev     # Development
+npm run build   # Prod
+npm test        # Run unit tests
 ```
+
+-----
 
 Open up [localhost:3000](http://localhost:3000) and start clicking around.
 

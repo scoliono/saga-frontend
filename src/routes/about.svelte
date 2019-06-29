@@ -4,4 +4,4 @@
 
 <h1>About this site</h1>
 
-<p>This is the 'about' page. There's not much here.</p>
+<p>Welcome to SAGA. This is the about page. This website is still a work in progress.</p>
