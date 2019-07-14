@@ -4,16 +4,18 @@ This is the frontend for the SAGA web app. It is written in JavaScript using Sap
 
 ## Setup
 
-First, change the root URL to the backend API as it is given in `src/api.js`.
+First, change the root URL as it is given in `src/server.js` to that of the backend API used for authentication.
 
 Then run the following commands in terminal (assuming you already have Node.js):
 
-```bash
+```sh
 npm install
 npm run dev     # Development
 npm run build   # Prod
 npm test        # Run unit tests
 ```
+
+Also, copy `.env.example` to `.env` and assign a long, secure password for the secret.
 
 -----
 

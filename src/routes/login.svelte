@@ -1,3 +1,12 @@
+<script context="module">
+    export function preload(page, session)
+    {
+        if (session.user) {
+            this.redirect(302, '/dashboard');
+        }
+    }
+</script>
+
 <script>
     import * as api from '../api.js';
     import { goto, stores } from '@sapper/app';
@@ -11,15 +20,17 @@
         api.login({ email, password })
             .then(response => {
                 $loading = false;
-                $session.user = response.data.user;
+                $session.user = response.user;
+                $session.token = response.token;
                 M.toast({ html: 'Logged in' });
                 goto('/dashboard');
             })
             .catch(err => {
-                let msg = err.response.data.error || err;
+                let msg = err.response ? err.response.data : err;
                 $loading = false;
                 M.toast({ html: msg });
                 $session.user = null;
+                $session.token = null;
             });
     }
 </script>
