@@ -21,7 +21,7 @@ export function get(req, res)
         }).catch(err => {
             console.error(err);
             res.statusCode = err.response ? err.response.status : 500;
-            res.end(err.response ? err.response.data.errors[0] : err.message);
+            res.end(err.message);
         });
     }
 }

@@ -10,22 +10,24 @@
 <script>
     import * as api from '../api.js';
 	import { goto, stores } from '@sapper/app';
+	import { onMount } from 'svelte';
     const { preloading, page, session } = stores();
 
-	if ($session.user) {
-		api.logout()
-			.then(response => {
+	onMount(async () => {
+		if ($session.user) {
+			try {
+				const response = await api.logout();
 				if (response.success) {
 					$session.user = null;
 					M.toast({ html: 'Logged out' });
 					goto('/');
 				}
-			})
-			.catch(err => {
-                let msg = err.response ? err.response.data : err;
+			} catch (err) {
+				let msg = err.response ? err.response.data : err;
 				M.toast({ html: msg });
-			});
-	} else {
-		goto('/');
-	}
+			}
+		} else {
+			goto('/');
+		}
+	});
 </script>

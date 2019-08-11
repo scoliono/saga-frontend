@@ -13,12 +13,12 @@
 	import { loading } from '../stores.js';
     const { preloading, page, session } = stores();
 
-    let email = '', name = '', password = '', password_confirmation = '';
+    let email = '', password = '', password_confirmation = '';
     let disabled = false;
 
     function register()
     {
-        api.register({ email, name, password, password_confirmation })
+        api.register({ email, password, password_confirmation })
             .then(response => {
                 $loading = false;
                 $session.user = response.user;
@@ -43,10 +43,28 @@
 <h1>Register</h1>
 <div class="register-form">
     <form on:submit|preventDefault={register}>
-        <p><label>Name:</label> <input name="name" bind:value={name} type="text"></p>
-        <p><label>Email:</label> <input name="email" bind:value={email} type="text"></p>
-        <p><label>Password:</label> <input name="password" bind:value={password} type="password"></p>
-        <p><label>Confirm Password:</label> <input name="confirm-password" bind:value={password_confirmation} type="password"></p>
-        <button type="submit" class="btn waves-effect waves-light" disabled={$loading}>Register</button>
+        <div class="row">
+            <div class="input-field col s12">
+                <input required bind:value={email} id="email" name="email" type="email">
+                <label for="email">Email</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input required bind:value={password} id="password" name="password" type="password">
+                <label for="password">Password</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input required bind:value={password_confirmation} id="confirm-password" name="confirm-password" type="password">
+                <label for="confirm-password">Confirm Password</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                <button type="submit" class="btn waves-effect waves-light" disabled={$loading}>Register</button>
+            </div>
+        </div>
     </form>
 </div>

@@ -10,24 +10,72 @@
 <script>
     import * as api from '../api.js';
     import { goto, stores } from '@sapper/app';
+    import { onMount } from 'svelte';
+    import FileUpload from '../components/FileUpload.svelte';
+    import AjaxButton from '../components/AjaxButton.svelte';
     const { session } = stores();
 
-    let user;
-    async function loadUser() {
-        user = undefined;
+    onMount(() => {
         api.setToken($session.token);
-        user = await api.user();
+        M.AutoInit();
+    });
+
+    function onError(err)
+    {
+        M.toast({ html: err });
     }
 </script>
 
+<style>
+i.verified {
+    margin-left: -75px;
+}
+</style>
+
 <svelte:head>
-    <title>{ $session.user.name }'s Profile</title>
+    {#if $session.user.full_name}
+        <title>{$session.user.full_name}'s Profile</title>
+    {:else}
+        <title>My Profile</title>
+    {/if}
 </svelte:head>
 
-<h1>Profile</h1>
-<p>Hello <span style="font-weight:500;">{$session.user.name}</span></p>
+<h2>
+    {#if $session.user.full_name}
+        <span style="font-weight:200">Hello</span>
+        <span style="font-weight:500">{$session.user.full_name}</span>
+    {:else}
+        <span style="font-weight:500">My Profile</span>
+    {/if}
+</h2>
+<div class="divider"></div>
+{#if $session.user.avatar}
+    <p class="center-align">
+        <img
+            class="circle"
+            src={`http://localhost:8000/storage/${$session.user.avatar}`}
+            alt={$session.user.full_name}
+            height="200"
+        >
+        {#if $session.user.verified}
+            <i class="material-icons medium blue-text white tooltipped circle verified" data-position="bottom" data-tooltip="Verified">check_circle</i>
+        {/if}
+    </p>
+{/if}
+<a class="btn waves-effect waves-light" href="/profile/edit">
+    <i class="material-icons left">edit</i> Edit Profile
+</a>
 {#if process.env.NODE_ENV === 'development'}
     <p>Debug:</p>
-    <button on:click={loadUser}>Load User Data</button>
-    <pre>{ user ? JSON.stringify(user, null, 2) : 'Not loaded' }</pre>
+    <AjaxButton
+        method="get"
+        name="reloadUserData"
+        action="/api/user"
+        resolve={response => $session.user = response.user}
+        reject={onError}
+        classes="btn waves-effect waves-light"
+    >
+        <i class="material-icons left">refresh</i> Reload User Data
+    </AjaxButton>
+    <pre>{ $session.user ? JSON.stringify($session.user, null, 2) : 'Not loaded' }</pre>
 {/if}
