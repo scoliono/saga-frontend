@@ -62,20 +62,53 @@ i.verified {
         {/if}
     </p>
 {/if}
-<a class="btn waves-effect waves-light" href="/profile/edit">
-    <i class="material-icons left">edit</i> Edit Profile
-</a>
+<div class="row">
+    <a class="btn waves-effect waves-light" href="/profile/edit">
+        <i class="material-icons left">edit</i> Edit Profile
+    </a>
+</div>
+{#if $session.user.btc || $session.user.eth}
+    <div class="divider"></div>
+    <div class="section">
+        <h4>Pay this User</h4>
+        <div class="row">
+            {#if $session.user.btc}
+                <div class="col s6">
+                    <img
+                        height="200"
+                        alt="Bitcoin address QR code"
+                        src={`//localhost:8000/storage/userdata/btc/${$session.user.btc}.png`}
+                    >
+                    <p><strong>BTC</strong>: {$session.user.btc}</p>
+                </div>
+            {/if}
+            {#if $session.user.eth}
+                <div class="col s6">
+                    <img
+                        height="200"
+                        alt="Ethereum address QR code"
+                        src={`//localhost:8000/storage/userdata/eth/${$session.user.eth}.png`}
+                    >
+                    <p><strong>ETH</strong>: {$session.user.eth}</p>
+                </div>
+            {/if}
+        </div>
+    </div>
+{/if}
 {#if process.env.NODE_ENV === 'development'}
-    <p>Debug:</p>
-    <AjaxButton
-        method="get"
-        name="reloadUserData"
-        action="/api/user"
-        resolve={response => $session.user = response.user}
-        reject={onError}
-        classes="btn waves-effect waves-light"
-    >
-        <i class="material-icons left">refresh</i> Reload User Data
-    </AjaxButton>
-    <pre>{ $session.user ? JSON.stringify($session.user, null, 2) : 'Not loaded' }</pre>
+    <div class="divider"></div>
+    <div class="section">
+        <p>Debug:</p>
+        <AjaxButton
+            method="get"
+            name="reloadUserData"
+            action="/api/user"
+            resolve={response => $session.user = response.user}
+            reject={onError}
+            classes="btn waves-effect waves-light"
+        >
+            <i class="material-icons left">refresh</i> Reload User Data
+        </AjaxButton>
+        <pre>{ $session.user ? JSON.stringify($session.user, null, 2) : 'Not loaded' }</pre>
+    </div>
 {/if}
