@@ -29,7 +29,7 @@
     async function fetchOrders()
     {
         api.setToken($session.token);
-        const res = await api.post('/api/order/showall');
+        const res = await api.get('/api/payments/all');
         return res.orders;
     }
 

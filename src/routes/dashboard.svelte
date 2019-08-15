@@ -166,7 +166,7 @@ i.pointer {
         <button class="modal-close waves-effect btn-flat">Cancel</button>
         <AjaxButton
             method="post"
-            action="/api/order/create"
+            action="/api/payments/create"
             name="createOrder"
             classes="waves-effect btn-flat"
             data={{ to_name, to_email, to_address,
