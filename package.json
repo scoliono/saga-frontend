@@ -3,10 +3,12 @@
   "description": "",
   "version": "0.0.1",
   "scripts": {
-    "dev": "sapper dev",
+    "dev": "npm run open & sapper dev",
     "build": "sapper build",
     "export": "sapper export",
     "start": "node __sapper__/build",
+    "debug": "npm run open & node --inspect-brk=9229 __sapper__/build",
+    "open": "open http://localhost:3000",
     "cy:run": "cypress run",
     "cy:open": "cypress open",
     "test": "run-p --race dev cy:run"
