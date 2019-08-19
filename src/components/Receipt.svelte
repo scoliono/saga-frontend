@@ -36,7 +36,7 @@ code {
             </div>
             <div class="row">
                 <div class="col s6">
-                    <label>Customer SAGA Address:</label> <code>{to_address}</code>
+                    <label>Customer ETH Address:</label> <code>{to_address}</code>
                 </div>
                 <div class="col s6">
                     <label>Total Value Owed:</label> {value} SAGA

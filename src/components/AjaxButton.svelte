@@ -8,12 +8,15 @@
     export let name;
     export let classes;
 
+    let disabled = false;
+
     const dispatch = createEventDispatcher();
 
     async function onClick(e) {
         dispatch('click', e);
         try {
             let response;
+            disabled = true;
             if (method.toLowerCase() === 'post') {
                 response = await api.post(action, data);
             } else if (method.toLowerCase() === 'get') {
@@ -38,6 +41,8 @@
             if (typeof reject === 'function') {
                 reject(err);
             }
+        } finally {
+            disabled = false;
         }
     }
 </script>
@@ -45,6 +50,6 @@
 <style>
 </style>
 
-<div class={classes} on:click={onClick}>
+<div class={disabled ? classes + ' disabled' : classes} on:click={onClick}>
     <slot></slot>
 </div>

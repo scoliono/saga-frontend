@@ -67,31 +67,21 @@ i.verified {
         <i class="material-icons left">edit</i> Edit Profile
     </a>
 </div>
-{#if $session.user.btc || $session.user.eth}
+{#if $session.user.eth}
     <div class="divider"></div>
     <div class="section">
         <h4>Pay this User</h4>
         <div class="row">
-            {#if $session.user.btc}
+            {#each $session.user.eth as addr}
                 <div class="col s6">
                     <img
                         height="200"
-                        alt="Bitcoin address QR code"
-                        src={`//localhost:8000/storage/userdata/btc/${$session.user.btc}.png`}
+                        alt="Ethereum Address QR Code"
+                        src={`//localhost:8000/storage/userdata/eth/${addr}.png`}
                     >
-                    <p><strong>BTC</strong>: {$session.user.btc}</p>
+                    <p><strong>ETH</strong>: {addr}</p>
                 </div>
-            {/if}
-            {#if $session.user.eth}
-                <div class="col s6">
-                    <img
-                        height="200"
-                        alt="Ethereum address QR code"
-                        src={`//localhost:8000/storage/userdata/eth/${$session.user.eth}.png`}
-                    >
-                    <p><strong>ETH</strong>: {$session.user.eth}</p>
-                </div>
-            {/if}
+            {/each}
         </div>
     </div>
 {/if}

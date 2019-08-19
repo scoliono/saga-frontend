@@ -17,15 +17,17 @@
     let to_name = '', to_email = '', to_address = '';
     let receipt_list = [];
     let itemName = '', itemPrice;
+    let from_address = '';
     let create, createModal;
     // don't chain anything like .toFixed() to end of line, it will break the reactive declaration :(
     // also, important to note that toFixed returns a string - do not do arithmetic with it!
     $: totalPrice = receipt_list.reduce((t, i) => t + i.price, 0.0);
 
-    onMount(() => {
+    onMount(async () => {
+        api.setToken($session.token);
+        $session.user = await api.user();
         M.AutoInit();
         createModal = M.Modal.getInstance(create);
-        api.setToken($session.token);
     });
 
     function addItem()
@@ -54,11 +56,13 @@
     {
         M.toast({ html: 'Invoice created successfully' });
         createModal.close();
+        to_name = to_email = to_address = from_address = itemName = itemPrice = '';
+        receipt_list = [];
     }
 
     function onCreateOrderFailed(err)
     {
-        M.toast({ html: err });
+        M.toast({ html: err.response.data.errors[0] });
     }
 </script>
 
@@ -109,10 +113,24 @@ i.pointer {
                 <div class="row">
                     <div class="input-field col s12">
                         <input bind:value={to_address} type="text" maxlength="42" id="to_address" name="to_address">
-                        <label for="to_address">SAGA Address</label>
+                        <label for="to_address">ETH Address</label>
                     </div>
                 </div>
             </form>
+        </div>
+        <div class="section">
+            <div class="row">
+                <div class="col s12">
+                    <h6>Send Payment To</h6>
+                    <select bind:value={from_address} id="from_address">
+                        <option selected disabled>Choose an Address</option>
+                        {#each $session.user.eth as addr}
+                            <option value={addr}>{addr}</option>
+                        {/each}
+                    </select>
+                    <label for="from_address">My ETH Address</label>
+                </div>
+            </div>
         </div>
         <div class="section">
             <div class="row">
@@ -141,6 +159,8 @@ i.pointer {
                                         {totalPrice.toFixed(2)} SAGA
                                     </td>
                                 </tr>
+                            {:else}
+                                <p>No items added.</p>
                             {/if}
                             <tr>
                                 <td>
@@ -169,7 +189,7 @@ i.pointer {
             action="/api/payments/create"
             name="createOrder"
             classes="waves-effect btn-flat"
-            data={{ to_name, to_email, to_address,
+            data={{ to_name, to_email, to_address, from_address,
                 value: totalPrice.toFixed(2),
                 receipt_list: JSON.stringify(receipt_list)
             }}

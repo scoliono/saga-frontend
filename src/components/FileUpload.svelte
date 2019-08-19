@@ -107,7 +107,7 @@
                         bind:this={inputEl}
                         id={`file-${name}`}
                         type="file"
-                        {name}
+                        name={multiple ? `${name}[]` : name}
                         multiple="multiple"
                         {accept}
                         on:change={onChange}
@@ -117,7 +117,7 @@
                         bind:this={inputEl}
                         id={`file-${name}`}
                         type="file"
-                        {name}
+                        name={multiple ? `${name}[]` : name}
                         {accept}
                         on:change={onChange}
                     >

@@ -22,8 +22,8 @@
     let birthdayEl;
     let birthday = $session.user.birthday;
 
-    let btc = $session.user.btc || '';
-    let eth = $session.user.eth || '';
+    let eth = $session.user.eth || [];
+    let addEthVal = '';
 
     onMount(async () => {
         api.setToken($session.token);
@@ -74,6 +74,12 @@
     }
 </script>
 
+<style>
+i.pointer {
+    cursor: pointer;
+}
+</style>
+
 <h2>Edit Profile</h2>
 <div class="divider"></div>
 <div class="section">
@@ -92,6 +98,7 @@
         </div>
         <div class="col s8">
             <div class="row">
+                <p>(Image must be 8 MB or less and be one of the following types: jpeg, png, bmp, gif, svg, or webp)</p>
                 <FileUpload
                     name="avatar"
                     action="/api/profile/update/avatar"
@@ -209,6 +216,7 @@
 <div class="section">
     <h4>Legal Documentation</h4>
     <p>Use this form to upload pictures or PDFs of legal documents, such as a driver's license, that match the infomation provided above. This step is also required to verify your identity before you can use our exchange. We will manually validate your account once this step is completed (expect a 24-hour wait at most). You can upload additional documents at any time before your identity is verified.</p>
+    <p>(Images must be 8 MB or less and be one of the following types: jpeg, png, bmp, gif, svg, or webp)</p>
     <div class="row">
         {#if !$session.user.verified}
             <FileUpload
@@ -233,14 +241,26 @@
 <div class="section">
     <h4>Financial Information</h4>
     <p>You need to provide one or more addresses before you can send invoices.</p>
-    <div class="row">
-        <div class="input-field col s6">
-            <input id="btc" name="btc" bind:value={btc} type="text">
-            <label class={btc ? 'active' : ''} for="btc">Bitcoin Address</label>
+    <h6>Ethereum Addresses</h6>
+    {#if !eth.length}
+        <p>You haven't added any Ethereum addresses.</p>
+    {/if}
+    {#each eth as addr, i}
+        <div class="row">
+            <div class="col s6">
+                <input id={`eth-${i}`} name="eth[]" bind:value={addr} type="text">
+            </div>
+            <div class="col s2">
+                <i class="material-icons pointer" on:click={() => { eth.splice(i, 1); eth = eth; }}>delete</i>
+            </div>
         </div>
-        <div class="input-field col s6">
-            <input id="eth" name="eth" bind:value={eth} type="text">
-            <label class={eth ? 'active' : ''} for="eth">Ethereum Address</label>
+    {/each}
+    <div class="row">
+        <div class="input-field col s12">
+            <button on:click={() => { eth = [...eth, '']; }} class="btn waves-effect waves-light">
+                <i class="material-icons left">add</i>
+                Add Ethereum Address
+            </button>
         </div>
     </div>
     <div class="row">
@@ -248,7 +268,7 @@
             name="updateProfile"
             action="/api/profile/update/wallets"
             method="post"
-            data={{ btc, eth }}
+            data={{ eth }}
             resolve={() => { onSuccessfulUpdate('Financial info'); }}
             reject={onUploadFailed}
             classes="btn waves-effect waves-light"
