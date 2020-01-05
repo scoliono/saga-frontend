@@ -10,9 +10,9 @@
 				const response = await api.logout();
 				if (response.success) {
 					$session.user = null;
-					api.setSessionVar('user', null);
+					await api.setSessionVar('user', null);
 					$session.token = null;
-					api.setToken(null);
+					await api.setToken(null);
 					bulmaToast('Logged out');
 					goto('/');
 				} else {

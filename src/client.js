@@ -5,7 +5,8 @@ import { toast } from 'bulma-toast';
 window.bulmaToast = args => {
 	const defaults = {
 		animate: { in: 'fadeIn', out: 'fadeOut' },
-		position: 'bottom-right'
+		position: 'bottom-right',
+		type: 'is-info'
 	};
 	if (typeof args === 'string') {
 		toast(Object.assign({ message: args }, defaults));

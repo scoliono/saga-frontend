@@ -53,7 +53,7 @@ export async function user()
 
 export async function setSessionVar(name, value)
 {
-    value = value === null || value === undefined ? null : JSON.stringify(value);
+    value = (value === null || value === undefined) ? null : JSON.stringify(value);
     const response = await axios.post('/api/session', { name, value });
     if (response.data.success) {
         return true;
