@@ -110,11 +110,9 @@ i.pointer {
             <div class="row">
                 <AjaxButton
                     method="post"
-                    name="clearAvatar"
                     action="/api/profile/clear/avatar"
                     resolve={onClearAvatar}
                     reject={onUploadFailed}
-                    classes="btn waves-effect waves-light"
                 >
                     <i class="material-icons left">delete</i> Clear Avatar
                 </AjaxButton>
@@ -138,12 +136,10 @@ i.pointer {
         <div class="col s4">
             {#if !$session.user.email_verified_at}
                 <AjaxButton
-                    name="resendEmail"
                     action="/api/email/resend"
                     method="post"
                     resolve={onEmailResent}
                     reject={onUploadFailed}
-                    classes="btn waves-effect waves-light"
                 >
                     Resend Verification Email
                 </AjaxButton>
@@ -188,7 +184,6 @@ i.pointer {
     {#if !$session.user.verified}
         <div class="row">
             <AjaxButton
-                name="updateProfile"
                 action="/api/profile/update/personal"
                 method="post"
                 data={{
@@ -200,7 +195,6 @@ i.pointer {
                 }}
                 resolve={() => { onSuccessfulUpdate('Personal info'); }}
                 reject={onUploadFailed}
-                classes="btn waves-effect waves-light"
             >
                 Save
             </AjaxButton>
@@ -248,7 +242,7 @@ i.pointer {
     {#each eth as addr, i}
         <div class="row">
             <div class="col s6">
-                <input id={`eth-${i}`} name="eth[]" bind:value={addr} type="text">
+                <input id={`eth-${i}`} name="eth[]" bind:value={addr} maxlength="42" type="text">
             </div>
             <div class="col s2">
                 <i class="material-icons pointer" on:click={() => { eth.splice(i, 1); eth = eth; }}>delete</i>
@@ -265,13 +259,11 @@ i.pointer {
     </div>
     <div class="row">
         <AjaxButton
-            name="updateProfile"
             action="/api/profile/update/wallets"
             method="post"
             data={{ eth }}
             resolve={() => { onSuccessfulUpdate('Financial info'); }}
             reject={onUploadFailed}
-            classes="btn waves-effect waves-light"
         >
             Save
         </AjaxButton>

@@ -4,9 +4,9 @@
 
     export let action, method;
     export let data = {};
+    export let submit = false;
     export let resolve, reject;
-    export let name;
-    export let classes;
+    export let classes = '';
 
     let disabled = false;
 
@@ -14,6 +14,11 @@
 
     async function onClick(e) {
         dispatch('click', e);
+        if (!e.target.closest('form').checkValidity()) {
+            return false;
+        } else {
+            e.preventDefault();
+        }
         try {
             let response;
             disabled = true;
@@ -50,6 +55,11 @@
 <style>
 </style>
 
-<div class={disabled ? classes + ' disabled' : classes} on:click={onClick}>
+<button class={`button ${classes}`}
+    class:is-loading={disabled}
+    {disabled}
+    type={submit ? 'submit' : 'button'}
+    on:click={onClick}
+>
     <slot></slot>
-</div>
+</button>

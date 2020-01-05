@@ -12,37 +12,21 @@
     export let resolve, reject;
 
     let isDragging = false, isUploading = false;
-    let hasFile = false;
     
     let progressPercent = 0;
     let formEl, inputEl;
-    let fileLabel = '';
-
-    let canDragAndDrop = false;
+    let fileLabel = 'No file selected';
 
     onMount(() => {
-        let el = document.createElement('div');
-        canDragAndDrop = 'FormData' in window && 'FileReader' in window &&
-            ('draggable' in el) || ('ondragstart' in el && 'ondrop' in el);
         formEl.reset();
     });
 
-    function beginDrag(e) {
-        isDragging = true;
-    }
-
-    function endDrag(e) {
-        isDragging = false;
-    }
-
-    function onDrop(e) {
-        isDragging = false;
-        hasFile = true;
-        fileLabel = [...e.dataTransfer.files].map(f => f.name).join(', ');
-    }
-
     function onChange(e) {
-        hasFile = true;
+        if (inputEl.files.length === 1) {
+            fileLabel = inputEl.files[0].name;
+        } else if (inputEl.files.length > 1) {
+            fileLabel = `${inputEl.files.length} files`;
+        }
     }
 
     async function onSubmit(e) {
@@ -50,92 +34,71 @@
             return false;
         }
         isUploading = true;
-        if (canDragAndDrop) {
-            e.preventDefault();
-            let formData = new FormData(formEl);
-            try {
-                const response = await api.upload(action, formData, p => {
-                    progressPercent = p.loaded / p.total;
-                });
-                if (response.success) {
-                    formEl.reset();
-                    if (typeof resolve === 'function') {
-                        resolve(response);
-                    }
-                } else {
-                    throw new Error('Response did not return success');
+        let formData = new FormData(formEl);
+        try {
+            const response = await api.upload(action, formData, p => {
+                progressPercent = p.loaded / p.total;
+            });
+            if (response.success) {
+                formEl.reset();
+                if (typeof resolve === 'function') {
+                    resolve(response);
                 }
-            } catch (err) {
-                if (typeof reject === 'function') {
-                    reject(err);
-                }
-            } finally {
-                isUploading = false;
+            } else {
+                throw new Error('Response did not return success');
             }
+        } catch (err) {
+            if (typeof reject === 'function') {
+                reject(err);
+            }
+        } finally {
+            isUploading = false;
         }
     }
 </script>
 
 <form
-    class="upload-box"
     method="POST"
     action={`http://localhost:8000/${action}`}
     enctype="multipart/form-data"
-    on:dragover={beginDrag}
-    on:dragenter={beginDrag}
-    on:dragleave={endDrag}
-    on:dragend={endDrag}
-    on:drop={onDrop}
-    on:submit={onSubmit}
+    on:submit|preventDefault={onSubmit}
     bind:this={formEl}
 >
-    {#if !isUploading}
-        <div class="file-field input-field upload-box-input">
-            <div class="btn"
-                style={`${isDragging ? 'background-color:#2bbbad;' : ''}`}
-            >
-                <span>
-                    <i class="material-icons left">attach_file</i>
-                    {label || `Select ${multiple ? 'files' : 'a file'}`}
-                    {#if canDragAndDrop && !label}
-                        {`or drag ${multiple ? 'them' : 'it'} here`}
-                    {/if}
-                    &hellip;
-                </span>
-                {#if multiple}
-                    <input
-                        bind:this={inputEl}
-                        id={`file-${name}`}
-                        type="file"
-                        name={multiple ? `${name}[]` : name}
-                        multiple="multiple"
-                        {accept}
-                        on:change={onChange}
-                    >
-                {:else}
-                    <input
-                        bind:this={inputEl}
-                        id={`file-${name}`}
-                        type="file"
-                        name={multiple ? `${name}[]` : name}
-                        {accept}
-                        on:change={onChange}
-                    >
-                {/if}
-            </div>
-            {#if hasFile}
-                <div class="file-path-wrapper">
-                    <input class="file-path validate" type="text" bind:value={fileLabel}>
+    <div class="field is-horizontal">
+        <div class="field-label is-normal">
+            <label class="label">{label}</label>
+        </div>
+        <div class="field-body">
+            <div class="field">
+                <div class="file has-name">
+                    <label class="file-label">
+                        <input
+                            class="file-input"
+                            bind:this={inputEl}
+                            id={`file-${name}`}
+                            type="file"
+                            name={multiple ? `${name}[]` : name}
+                            {accept}
+                            {multiple}
+                            on:change={onChange}
+                        >
+                        <span class="file-cta">
+                            <span class="file-icon">
+                                <i class="fas fa-upload"></i>
+                            </span>
+                            <span class="file-label">
+                                {`Select ${multiple ? 'files' : 'a file'}&hellip;`}
+                            </span>
+                        </span>
+                        <span class="file-name">{fileLabel}</span>
+                    </label>
                 </div>
-                <button class="btn waves-effect waves-light upload-box-confirm" type="submit">Upload</button>
-            {/if}
-        </div>
-    {:else}
-        <div class="upload-box-progress">
-            Uploading&hellip;
-            <div class="progress">
-                <div class="determinate" style={`width:${progressPercent}%;`}></div>
+                <div class="control">
+                    {#if inputEl.files.length > 0}
+                        <button class="button" class:loading={isUploading} type="submit">Upload</button>
+                    {/if}
+                </div>
             </div>
         </div>
-    {/if}
+    </div>
 </form>

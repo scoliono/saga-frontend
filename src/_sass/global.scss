@@ -1,0 +1,35 @@
+@charset "utf-8";
+
+// Customization
+
+// You can easily customize Bulma with your own variables.
+// Just uncomment the following block to see the result.
+
+// 1. Import the initial variables
+@import "~bulma/sass/utilities/initial-variables";
+
+// 2. Set your own initial variables
+// Update the sans-serif font family
+$breadcrumb-item-color: rgb(104, 104, 104);
+$breadcrumb-item-active-color: rgb(188, 188, 188);
+
+$menu-item-color: $grey;
+$menu-item-hover-color: $white;
+$menu-item-hover-background-color: $black-ter;
+$menu-item-active-background-color: $black-ter;
+$menu-list-border-left: 1px solid rgb(43, 43, 43);
+$menu-list-line-height: 1;
+$menu-label-spacing: 2em;
+$menu-list-link-padding: 0.5em;
+$menu-nested-list-margin: 0 2.5em;
+
+// $family-sans-serif: "Helvetica", "Arial", sans-serif;
+
+// 3. Set the derived variables
+
+// 4. Import the rest of Bulma
+@import "~bulma/bulma";
+
+// Extensions
+@import "~animate.css/animate.min";
+@import "~bulma-switch/dist/css/bulma-switch.min";

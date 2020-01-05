@@ -2,7 +2,7 @@
     export function preload(page, session)
     {
         if (session.user) {
-            this.redirect(302, '/dashboard');
+            this.redirect(302, '/');
         }
     }
 </script>
@@ -11,28 +11,49 @@
     import * as api from '../api.js';
     import { goto, stores } from '@sapper/app';
 	import { loading } from '../stores.js';
+    import InputField, { showErrors } from '../components/InputField.svelte';
+    import AjaxButton from '../components/AjaxButton.svelte';
     const { preloading, page, session } = stores();
 
-    let email = '', password = '', password_confirmation = '';
+    let email = '', password = '', password_confirmation = '', tos = false;
     let disabled = false;
 
-    function register()
+    let errors = {};
+
+    async function onRegister(response)
     {
-        api.register({ email, password, password_confirmation })
-            .then(response => {
-                $loading = false;
-                $session.user = response.user;
-                $session.token = response.token;
-                M.toast({ html: 'Logged in' });
-                goto('/dashboard');
-            })
-            .catch(err => {
-                let msg = err.response ? err.response.data : err;
-                $loading = false;
-                M.toast({ html: msg });
-                $session.user = null;
-                $session.token = null;
+        try {
+            $session.user = response.user;
+            await api.setSessionVar('user', response.user);
+            $session.token = response.token;
+            await api.setToken(response.token);
+        } catch (err) {
+            bulmaToast({
+                message: 'Failed to store session data. Please try again.',
+                type: 'is-danger'
             });
+            return false;
+        }
+        bulmaToast('Logged in');
+        goto('/');
+    }
+
+    function onRegisterFailed(err)
+    {
+        if (err.response && err.response.data) {
+            bulmaToast({
+                message: err.response.data.message,
+                type: 'is-danger'
+            });
+            errors = err.response.data.errors;
+        } else {
+            bulmaToast({
+                message: err.toString(),
+                type: 'is-danger'
+            });
+        }
+        $session.user = null;
+        $session.token = null;
     }
 </script>
 
@@ -40,31 +61,49 @@
     <title>Register</title>
 </svelte:head>
 
-<h1>Register</h1>
-<div class="register-form">
-    <form on:submit|preventDefault={register}>
-        <div class="row">
-            <div class="input-field col s12">
-                <input required bind:value={email} id="email" name="email" type="email">
-                <label for="email">Email</label>
-            </div>
+<div class="content">
+    <h1>Register</h1>
+    <form>
+        <InputField
+            required
+            bind:value={email}
+            label="Email"
+            name="email"
+            type="email"
+            bind:error={errors.email}
+        />
+        <InputField
+            required
+            bind:value={password}
+            label="Password"
+            name="password"
+            type="password"
+            bind:error={errors.password}
+        />
+        <InputField
+            required
+            bind:value={password_confirmation}
+            label="Confirm Password"
+            name="confirm-password"
+            type="password"
+            bind:error={errors.password_confirmation}
+        />
+        <div class="field">
+            <label>
+                <input type="checkbox" name="remember" required bind:checked={tos}>
+                <span class="lever"></span>
+                I have read and agree to the <a href="/support/terms">Terms of Service</a>
+            </label>
         </div>
-        <div class="row">
-            <div class="input-field col s12">
-                <input required bind:value={password} id="password" name="password" type="password">
-                <label for="password">Password</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12">
-                <input required bind:value={password_confirmation} id="confirm-password" name="confirm-password" type="password">
-                <label for="confirm-password">Confirm Password</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col s12">
-                <button type="submit" class="btn waves-effect waves-light" disabled={$loading}>Register</button>
-            </div>
-        </div>
+        <AjaxButton
+            method="post"
+            action="/api/register"
+            resolve={onRegister}
+            reject={onRegisterFailed}
+            submit
+            data={{ email, password, password_confirmation, tos }}
+        >
+            Register
+        </AjaxButton>
     </form>
 </div>

@@ -1,4 +1,3 @@
-import axios from 'axios';
 import sirv from 'sirv';
 import polka from 'polka';
 import bodyParser from 'body-parser';
@@ -7,13 +6,23 @@ import session from 'express-session';
 import sessionFileStore from 'session-file-store';
 import * as sapper from '@sapper/server';
 
-axios.defaults.baseURL = 'http://[::1]:8000/api/';
-
 const FileStore = sessionFileStore(session);
 require('dotenv').config();
 
 const { PORT, NODE_ENV } = process.env;
 const dev = NODE_ENV === 'development';
+
+const acceptedSessionVars = ['expanded', 'user', 'token'];
+
+function sessionObj(session)
+{
+	return Object.keys(session)
+			.filter(k => acceptedSessionVars.includes(k))
+			.reduce((obj, key) => {
+				obj[key] = session[key];
+				return obj;
+			}, {});
+}
 
 polka() // You can also use Express
 	.use(bodyParser.json())
@@ -30,10 +39,7 @@ polka() // You can also use Express
 		compression({ threshold: 0 }),
 		sirv('static', { dev }),
 		sapper.middleware({
-			session: (req, res) => ({
-				user: req.session && req.session.user,
-				token: req.session && req.session.token
-			})
+			session: (req, res) => sessionObj(req.session)
 		})
 	)
 	.listen(PORT, err => {

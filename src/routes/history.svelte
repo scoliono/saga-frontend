@@ -14,18 +14,6 @@
     import { stores } from '@sapper/app';
     const { session } = stores();
 
-    onMount(() => {
-        setInterval(init, 100);
-    });
-
-    function init()
-    {
-        let elems = document.querySelectorAll('.collapsible.expandable');
-        M.Collapsible.init(elems, {
-            accordion: false
-        });
-    }
-
     async function fetchOrders()
     {
         api.setToken($session.token);
@@ -47,14 +35,15 @@
                 <li class="collection-item">
                     <Receipt
                         id={order.id}
-                        to_name={order.to_name}
-                        to_email={order.to_email}
+                        from_name={order.name}
+                        from_email={order.email}
                         value={order.value}
+                        from_address={order.from_address}
                         to_address={order.to_address}
                         receipt_list={order.receipt_list}
-                        created_at={order.created_at}
-                        updated_at={order.updated_at}
-                        completed={order.completed}
+                        created_at={order.create_date}
+                        updated_at={order.update_date}
+                        completed={order.tx_hash !== 'unconfirmed'}
                     />
                 </li>
             {/each}

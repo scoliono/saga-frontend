@@ -27,47 +27,48 @@
 </script>
 
 <style>
-i.verified {
-    margin-left: -75px;
-}
 </style>
 
 <svelte:head>
     {#if $session.user.full_name}
-        <title>{$session.user.full_name}'s Profile</title>
+        <title>{$session.user.full_name}'s Profile | SAGA</title>
     {:else}
-        <title>My Profile</title>
+        <title>My Profile | SAGA</title>
     {/if}
 </svelte:head>
 
-<h2>
-    {#if $session.user.full_name}
-        <span style="font-weight:200">Hello</span>
-        <span style="font-weight:500">{$session.user.full_name}</span>
-    {:else}
-        <span style="font-weight:500">My Profile</span>
-    {/if}
-</h2>
-<div class="divider"></div>
-{#if $session.user.avatar}
-    <p class="center-align">
-        <img
-            class="circle"
-            src={`http://localhost:8000/storage/${$session.user.avatar}`}
-            alt={$session.user.full_name}
-            height="200"
-        >
-        {#if $session.user.verified}
-            <i class="material-icons medium blue-text white tooltipped circle verified" data-position="bottom" data-tooltip="Verified">check_circle</i>
-        {/if}
-    </p>
-{/if}
+<div class="content">
+    <h2>Profile</h2>
+</div>
+
+<div class="container">
+    <div class="columns">
+        <div class="column has-text-centered">
+            <figure class="image">
+                {#if $session.user.avatar}
+                    <img
+                        class="circle"
+                        src={`http://localhost:8000/storage/${$session.user.avatar}`}
+                        alt={$session.user.full_name}
+                        height="200"
+                    >
+                {/if}
+            </figure>
+            <p class="title">{$session.user.name}</p>
+        </div>
+        <div class="column">
+            
+        </div>
+    </div>
+    
+</div>
+
 <div class="row">
     <a class="btn waves-effect waves-light" href="/profile/edit">
         <i class="material-icons left">edit</i> Edit Profile
     </a>
 </div>
-{#if $session.user.eth}
+{#if $session.user.eth && $session.user.eth.length}
     <div class="divider"></div>
     <div class="section">
         <h4>Pay this User</h4>
@@ -83,22 +84,5 @@ i.verified {
                 </div>
             {/each}
         </div>
-    </div>
-{/if}
-{#if process.env.NODE_ENV === 'development'}
-    <div class="divider"></div>
-    <div class="section">
-        <p>Debug:</p>
-        <AjaxButton
-            method="get"
-            name="reloadUserData"
-            action="/api/user"
-            resolve={response => $session.user = response.user}
-            reject={onError}
-            classes="btn waves-effect waves-light"
-        >
-            <i class="material-icons left">refresh</i> Reload User Data
-        </AjaxButton>
-        <pre>{ $session.user ? JSON.stringify($session.user, null, 2) : 'Not loaded' }</pre>
     </div>
 {/if}

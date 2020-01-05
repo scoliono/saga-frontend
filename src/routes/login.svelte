@@ -2,7 +2,7 @@
     export function preload(page, session)
     {
         if (session.user) {
-            this.redirect(302, '/dashboard');
+            this.redirect(302, '/');
         }
     }
 </script>
@@ -10,32 +10,49 @@
 <script>
     import * as api from '../api.js';
     import { goto, stores } from '@sapper/app';
-	import { loading } from '../stores.js';
+    import { loading } from '../stores.js';
+    import InputField, { showErrors } from '../components/InputField.svelte';
+    import AjaxButton from '../components/AjaxButton.svelte';
     const { preloading, page, session } = stores();
 
     let email = '', password = '';
-    let rememberEl;
-    async function login(event)
+    let errors = {};
+    let remember;
+
+    async function onLogin(response)
     {
-        $loading = true;
         try {
-            let data = { email, password };
-            if (rememberEl.checked) {
-                data.remember = true;
-            }
-            const response = await api.login(data);
             $session.user = response.user;
+            await api.setSessionVar('user', response.user);
             $session.token = response.token;
-            M.toast({ html: 'Logged in' });
-            goto('/dashboard');
+            await api.setToken(response.token);
         } catch (err) {
-            let msg = err.response ? err.response.data : err;
-            M.toast({ html: msg });
-            $session.user = null;
-            $session.token = null;
-        } finally {
-            $loading = false;
+            bulmaToast({
+                message: 'Failed to store session data. Please try again.',
+                type: 'is-danger'
+            });
+            return false;
         }
+        bulmaToast('Logged in');
+        goto('/');
+    }
+
+    function onLoginFailed(err)
+    {
+        if (err.response && err.response.data) {
+            bulmaToast({
+                message: err.response.data.message,
+                type: 'is-danger'
+            });
+            errors = err.response.data.errors;
+        } else {
+            bulmaToast({
+                message: err.toString(),
+                type: 'is-danger'
+            });
+        }
+        $session.user = null;
+        $session.token = null;
     }
 </script>
 
@@ -43,36 +60,39 @@
     <title>Login</title>
 </svelte:head>
 
-<h1>Login</h1>
-<div class="login-form">
-    <form on:submit|preventDefault={login}>
-        <div class="row">
-            <div class="input-field col s12">
-                <input required bind:value={email} id="email" name="email" type="email">
-                <label for="email">Email</label>
-            </div>
+<div class="content">
+    <h1>Login</h1>
+    <form>
+        <InputField
+            name="email"
+            label="Email"
+            type="email"
+            required
+            bind:value={email}
+            bind:error={errors.email}
+        />
+        <InputField
+            name="password"
+            label="Password"
+            type="password"
+            bind:value={password}
+            bind:error={errors.password}
+        />
+        <div class="field">
+            <input class="switch" type="checkbox" id="remember" name="remember" bind:checked={remember}>
+            <label for="remember">Remember Me</label>
         </div>
-        <div class="row">
-            <div class="input-field col s12">
-                <input required bind:value={password} id="password" name="password" type="password">
-                <label for="password">Password</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col s12">
-                <div class="switch">
-                    <label>
-                        Remember Me
-                        <input type="checkbox" name="remember" bind:this={rememberEl}>
-                        <span class="lever"></span>
-                    </label>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col s12">
-                <button disabled={$loading} class="btn waves-effect waves-light" type="submit">Login</button>
-            </div>
+        <div class="field">
+            <AjaxButton
+                method="post"
+                action="/api/login"
+                resolve={onLogin}
+                reject={onLoginFailed}
+                submit
+                data={{ email, password, remember }}
+            >
+                Login
+            </AjaxButton>
         </div>
     </form>
 </div>

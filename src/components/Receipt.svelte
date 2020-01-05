@@ -1,5 +1,5 @@
 <script>
-    export let id, to_name, to_email, to_address, value, receipt_list, created_at, updated_at, completed;
+    export let id, from_name, from_email, from_address, value, receipt_list, created_at, updated_at, completed, to_address;
 </script>
 
 <style>
@@ -28,17 +28,22 @@ code {
             </div>
             <div class="row">
                 <div class="col s6">
-                    <label>Customer Name:</label> {to_name}
+                    <label>Customer Name:</label> {from_name}
                 </div>
                 <div class="col s6">
-                    <label>Customer Email:</label> <a href={`mailto:${to_email}`}>{to_email}</a>
+                    <label>Customer Email:</label> <a href={`mailto:${from_email}`}>{from_email}</a>
                 </div>
             </div>
             <div class="row">
                 <div class="col s6">
-                    <label>Customer ETH Address:</label> <code>{to_address}</code>
+                    <label>Customer ETH Address:</label> <code>{from_address}</code>
                 </div>
                 <div class="col s6">
+                    <label>Merchant ETH Address:</label> <code>{to_address}</code>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12">
                     <label>Total Value Owed:</label> {value} SAGA
                 </div>
             </div>
@@ -46,11 +51,6 @@ code {
                 <div class="col s6">
                     <label>Invoice Sent At:</label> {new Date(created_at).toLocaleString()}
                 </div>
-                {#if completed && updated_at && updated_at != created_at}
-                    <div class="col s6">
-                        <label>Invoice Paid At:</label> {new Date(updated_at).toLocaleString()}
-                    </div>
-                {/if}
             </div>
         </div>
     </li>

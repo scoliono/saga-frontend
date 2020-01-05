@@ -6,12 +6,11 @@
 </script>
 
 <svelte:head>
-	<title>{status}</title>
+	<title>{status} {error.message}</title>
 </svelte:head>
 
-<h1>{status}</h1>
-
-<p>{error.message}</p>
+<h1 class="title">Error {status}</h1>
+<p class="subtitle">{error.message}</p>
 
 {#if dev && error.stack}
 	<pre>{error.stack}</pre>

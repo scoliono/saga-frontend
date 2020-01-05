@@ -19,7 +19,7 @@
                 let res = await api.get('/api/email/verify/' + id, { expires, signature });
                 if (res.success) {
                     M.toast({ html: 'Successfully validated email address' });
-                    goto('/dashboard');
+                    goto('/');
                 }
             } catch (err) {
                 M.toast({ html: err });

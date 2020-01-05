@@ -1,12 +1,3 @@
-<script context="module">
-    export function preload(page, session)
-    {
-        if (!session.user) {
-            this.redirect(302, '/');
-        }
-    }
-</script>
-
 <script>
     import * as api from '../api.js';
 	import { goto, stores } from '@sapper/app';
@@ -19,12 +10,22 @@
 				const response = await api.logout();
 				if (response.success) {
 					$session.user = null;
-					M.toast({ html: 'Logged out' });
+					api.setSessionVar('user', null);
+					$session.token = null;
+					api.setToken(null);
+					bulmaToast('Logged out');
 					goto('/');
+				} else {
+					bulmaToast({
+						message: response.errors[0],
+						type: 'is-danger'
+					});
 				}
 			} catch (err) {
-				let msg = err.response ? err.response.data : err;
-				M.toast({ html: msg });
+				bulmaToast({
+					message: err,
+					type: 'is-danger'
+				});
 			}
 		} else {
 			goto('/');

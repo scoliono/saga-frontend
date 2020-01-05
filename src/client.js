@@ -1,7 +1,20 @@
 import * as sapper from '@sapper/app';
+require('./_sass/global.scss');
+
+import { toast } from 'bulma-toast';
+window.bulmaToast = args => {
+	const defaults = {
+		animate: { in: 'fadeIn', out: 'fadeOut' },
+		position: 'bottom-right'
+	};
+	if (typeof args === 'string') {
+		toast(Object.assign({ message: args }, defaults));
+	} else {
+		toast(Object.assign(defaults, args));
+	}
+};
 
 sapper.start({
 	target: document.querySelector('#sapper')
 });
 
-M.AutoInit();

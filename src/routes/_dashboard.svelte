@@ -14,21 +14,28 @@
     import { onMount } from 'svelte';
     const { session } = stores();
 
-    let to_name = '', to_email = '', to_address = '';
+    let from_name = '', from_email = '', from_address = '';
     let receipt_list = [];
     let itemName = '', itemPrice;
-    let from_address = '';
+    let to_address = '';
     let create, createModal;
+    let eth = '';
     // don't chain anything like .toFixed() to end of line, it will break the reactive declaration :(
     // also, important to note that toFixed returns a string - do not do arithmetic with it!
     $: totalPrice = receipt_list.reduce((t, i) => t + i.price, 0.0);
 
-    onMount(async () => {
-        api.setToken($session.token);
-        $session.user = await api.user();
-        M.AutoInit();
-        createModal = M.Modal.getInstance(create);
-    });
+    async function addETHAddress()
+    {
+        let ethList = $session.user.eth || [];
+        ethList.push(eth);
+        try {
+            await api.post('/api/profile/update/wallets', { eth });
+            $session.user = await api.user();
+            M.toast({ html: 'Saved new ETH address successfully' });
+        } catch (err) {
+            M.toast({ html: e });
+        }
+    }
 
     function addItem()
     {
@@ -56,13 +63,13 @@
     {
         M.toast({ html: 'Invoice created successfully' });
         createModal.close();
-        to_name = to_email = to_address = from_address = itemName = itemPrice = '';
+        from_name = from_email = from_address = to_address = itemName = itemPrice = '';
         receipt_list = [];
     }
 
     function onCreateOrderFailed(err)
     {
-        M.toast({ html: err.response.data.errors[0] });
+        M.toast({ html: err.response.data.message || err.response.data.errors[0] });
     }
 </script>
 
@@ -100,20 +107,20 @@ i.pointer {
             <form>
                 <div class="row">
                     <div class="input-field col s12">
-                        <input bind:value={to_name} type="text" id="to_name" name="to_name">
-                        <label for="to_name">Name</label>
+                        <input bind:value={from_name} type="text" id="from_name" name="from_name">
+                        <label for="from_name">Name</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="input-field col s12">
-                        <input bind:value={to_email} type="text" id="to_email" name="to_email">
-                        <label for="to_email">Email</label>
+                        <input bind:value={from_email} type="text" id="from_email" name="from_email">
+                        <label for="from_email">Email</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="input-field col s12">
-                        <input bind:value={to_address} type="text" maxlength="42" id="to_address" name="to_address">
-                        <label for="to_address">ETH Address</label>
+                        <input bind:value={from_address} type="text" maxlength="42" id="from_address" name="from_address">
+                        <label for="from_address">ETH Address</label>
                     </div>
                 </div>
             </form>
@@ -122,13 +129,18 @@ i.pointer {
             <div class="row">
                 <div class="col s12">
                     <h6>Send Payment To</h6>
-                    <select bind:value={from_address} id="from_address">
-                        <option selected disabled>Choose an Address</option>
-                        {#each $session.user.eth as addr}
-                            <option value={addr}>{addr}</option>
-                        {/each}
-                    </select>
-                    <label for="from_address">My ETH Address</label>
+                    {#if $session.user.eth && $session.user.eth.length}
+                        <select bind:value={to_address} id="to_address">
+                            <option selected disabled>Choose an Address</option>
+                            {#each $session.user.eth as addr}
+                                <option value={addr}>{addr}</option>
+                            {/each}
+                            <label for="to_address">My ETH Address</label>
+                        </select>
+                    {:else}
+                        <!-- add eth addresses on-the-fly? -->
+                        <p>You need to <a href="/profile/edit">add at least one ETH address</a> before you can continue.</p>
+                    {/if}
                 </div>
             </div>
         </div>
@@ -183,13 +195,10 @@ i.pointer {
         </div>
     </div>
     <div class="modal-footer">
-        <button class="modal-close waves-effect btn-flat">Cancel</button>
         <AjaxButton
             method="post"
             action="/api/payments/create"
-            name="createOrder"
-            classes="waves-effect btn-flat"
-            data={{ to_name, to_email, to_address, from_address,
+            data={{ from_name, from_email, from_address, to_address,
                 value: totalPrice.toFixed(2),
                 receipt_list: JSON.stringify(receipt_list)
             }}
