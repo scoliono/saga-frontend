@@ -2,7 +2,7 @@
     export function preload(page, session)
     {
         if (!session.user) {
-            this.redirect(302, '/login');
+            this.redirect(302, `/login?redirect=${encodeURIComponent(page.path)}`);
         }
     }
 </script>

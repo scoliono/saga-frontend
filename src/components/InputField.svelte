@@ -7,6 +7,8 @@
     export let required = true;
     export let type = 'text';
     export let value;
+    export let min = undefined, max = undefined;
+    export let disabled = false;
     // what's a better way to do this?
     export let error = '';
     export let horizontal = false;
@@ -36,6 +38,9 @@
                         {name}
                         {value}
                         {type}
+                        {min}
+                        {max}
+                        {disabled}
                         on:input={onInput}>
                 </div>
             </div>
@@ -54,6 +59,9 @@
                 {name}
                 {value}
                 {type}
+                {min}
+                {max}
+                {disabled}
                 on:input={onInput}>
         </div>
         <p class="help is-danger">{error || ''}</p>

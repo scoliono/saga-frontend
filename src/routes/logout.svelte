@@ -5,30 +5,23 @@
     const { preloading, page, session } = stores();
 
 	onMount(async () => {
-		if ($session.user) {
-			try {
-				const response = await api.logout();
-				if (response.success) {
-					$session.user = null;
-					await api.setSessionVar('user', null);
-					$session.token = null;
-					await api.setToken(null);
-					bulmaToast('Logged out');
-					goto('/');
-				} else {
-					bulmaToast({
-						message: response.errors[0],
-						type: 'is-danger'
-					});
-				}
-			} catch (err) {
+		try {
+			const response = await api.logout();
+			if (response.success) {
+				delete $session.user;
+				bulmaToast('Logged out');
+				goto('/');
+			} else {
 				bulmaToast({
-					message: err,
+					message: response.errors[0],
 					type: 'is-danger'
 				});
 			}
-		} else {
-			goto('/');
+		} catch (err) {
+			bulmaToast({
+				message: err.toString(),
+				type: 'is-danger'
+			});
 		}
 	});
 </script>

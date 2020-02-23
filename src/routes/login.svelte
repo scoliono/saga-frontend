@@ -1,31 +1,30 @@
-<script context="module">
-    export function preload(page, session)
-    {
-        if (session.user) {
-            this.redirect(302, '/');
-        }
-    }
-</script>
-
 <script>
     import * as api from '../api.js';
     import { goto, stores } from '@sapper/app';
     import { loading } from '../stores.js';
-    import InputField, { showErrors } from '../components/InputField.svelte';
+    import { onMount } from 'svelte';
+    import InputField from '../components/InputField.svelte';
     import AjaxButton from '../components/AjaxButton.svelte';
     const { preloading, page, session } = stores();
 
     let email = '', password = '';
+    export let personal = undefined;
     let errors = {};
     let remember;
+    let showPersonal;
+
+    onMount(async () => {
+        showPersonal = personal === undefined;
+        if (showPersonal) {
+            personal = true;
+        }
+        await api.getCookie();
+    });
 
     async function onLogin(response)
     {
         try {
             $session.user = response.user;
-            await api.setSessionVar('user', response.user);
-            $session.token = response.token;
-            await api.setToken(response.token);
         } catch (err) {
             bulmaToast({
                 message: 'Failed to store session data. Please try again.',
@@ -34,7 +33,7 @@
             return false;
         }
         bulmaToast('Logged in');
-        goto('/');
+        goto($page.query.redirect ? decodeURIComponent($page.query.redirect) : '/dashboard');
     }
 
     function onLoginFailed(err)
@@ -52,7 +51,6 @@
             });
         }
         $session.user = null;
-        $session.token = null;
     }
 </script>
 
@@ -78,6 +76,7 @@
             bind:value={password}
             bind:error={errors.password}
         />
+        <!-- merchant/customer field would go here -->
         <div class="field">
             <input class="switch" type="checkbox" id="remember" name="remember" bind:checked={remember}>
             <label for="remember">Remember Me</label>
@@ -89,7 +88,7 @@
                 resolve={onLogin}
                 reject={onLoginFailed}
                 submit
-                data={{ email, password, remember }}
+                data={{ email, password, remember, merchant: !personal }}
             >
                 Login
             </AjaxButton>

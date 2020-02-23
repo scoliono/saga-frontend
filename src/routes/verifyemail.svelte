@@ -14,7 +14,6 @@
                 'Please make sure you copied the URL from the validation email correctly.' });
             goto('/');
         } else {
-            api.setToken($session.token);
             try {
                 let res = await api.get('/api/email/verify/' + id, { expires, signature });
                 if (res.success) {

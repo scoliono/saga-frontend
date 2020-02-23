@@ -11,7 +11,7 @@
         <span class="icon"><i class="fas fa-home"></i></span>
         <a href="/">Home</a>
     </li>
-    {#if route && route.slug !== '/'}
+    {#if route && route.label !== 'Home'}
         <li class="is-active">
             <a href={route.slug}>{route.label}</a>
         </li>

@@ -15,6 +15,9 @@
     :global(body.has-navbar-fixed-top) {
         padding-top: 4rem;
     }
+    img.is-rounded {
+        max-height: 32px;
+    }
 </style>
 
 <nav class="navbar is-fixed-top is-white">
@@ -23,9 +26,9 @@
             {#if $session.user}
                 <a class="navbar-item" href="/profile">
                     <figure class="image is-32x32">
-                        <img class="is-rounded" src={$session.user.avatar || '/saga-icon.svg'} alt={$session.user.full_name}>
+                        <img class="is-rounded" src={$session.user.avatar || '/saga-icon.svg'} alt="Avatar">
                     </figure>
-                    <span class="subtitle" style="margin-left:10px;">{$session.user.full_name}</span>
+                    <span class="subtitle" style="margin-left:10px;">{$session.user.full_name || 'My Profile'}</span>
                 </a>
                 <div class="navbar-item">
                     <a class="button" href="/logout">

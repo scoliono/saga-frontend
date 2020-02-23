@@ -15,6 +15,9 @@ window.bulmaToast = args => {
 	}
 };
 
+import Echo from 'laravel-echo';
+window.Echo = Echo;
+
 sapper.start({
 	target: document.querySelector('#sapper')
 });

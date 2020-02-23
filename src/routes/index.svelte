@@ -1,166 +1,85 @@
 <svelte:head>
-	<title>Home | SAGA</title>
+	<title>SAGA.io</title>
 </svelte:head>
 
 <script>
+	import Login from './login.svelte';
+	import Register from './register.svelte';
 	import { onMount } from 'svelte';
-    import { goto, stores } from '@sapper/app';
+	import { stores, goto } from '@sapper/app';
+
 	const { session } = stores();
+
+	let personal = true;
+	let createAcc = false;
 </script>
 
 <style>
-	div.columns.panel div.column:not(:last-child) {
-		border-right: 1px solid rgb(245, 245, 245);
+	.hero-body {
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		z-index: 1;
+	}
+	.hero-circle {
+		position: absolute;
+		background-color: lightskyblue;
+		margin-top: -250px;
+		height: 500px;
+		width: 500px;
+		margin-left: calc(50% - 250px);
+		border-radius: 50%;
+		z-index: 0;
+	}
+	figure.image {
+		margin-right: 15px;
+	}
+	p.brand {
+		font-size: 56px;
+		margin-left: 15px;
+		color: whitesmoke;
+		font-weight: 300;
+		letter-spacing: 5px;
+	}
+	div.panel-block {
+		flex-direction: column;
+		min-width: 350px;
+	}
+	:global(div.panel-block div.content) {
+		width: 100%;
+	}
+	:global(body.has-navbar-fixed-top) {
+		padding-top: 0;
 	}
 </style>
 
-<div class="container">
-	{#if $session.user}
-	<h1 class="title">UserID {$session.user.id}</h1>
-	<div class="columns panel has-background-white" style="width:70%;">
-		<div class="column has-text-centered">
-			<div class="field">
-				<button class="button is-info is-rounded">Set up 2FA now</button>
-			</div>
-			<div class="field">
-				<input id="remind-2fa" type="checkbox" class="switch is-rounded" checked="checked">
-				<label for="remind-2fa">Remind me Later</label>
-			</div>
-		</div>
-		<div class="column has-text-centered">
-			<div class="field">
-				<button class="button is-info is-rounded">Get Verified</button>
-			</div>
-			<div class="field">
-				<input id="remind-verify" type="checkbox" class="switch is-rounded" checked="checked">
-				<label for="remind-verify">Remind me Later</label>
-			</div>
-		</div>
-		<div class="column has-text-centered">
-			<div class="field">
-				<button class="button is-info is-rounded">Switch plans</button>
-			</div>
-			<div class="field">
-				<input id="remind-upgrade" type="checkbox" class="switch is-rounded">
-				<label for="remind-upgrade">Don't remind me</label>
-			</div>
-		</div>
+<section class="hero">
+	<div class="hero-body is-flex">
+		<figure class="image is-128x128">
+			<img alt="SAGA Logo" src="/saga-icon.svg">
+		</figure>
+		<p class="brand">SAGA</p>
 	</div>
-	<div class="columns is-multiline">
-		<div class="column is-one-third">
-			<div class="card">
-				<header class="card-header">
-					<p class="card-header-title">
-						<span class="icon">
-							<i class="fas fa-dollar-sign"></i>
-						</span>
-						Local fiat
-					</p>
-					<a class="card-header-icon" aria-label="more options">
-						<span class="icon">
-							<i class="fas fa-angle-right" aria-hidden="true"></i>
-						</span>
-					</a>
-				</header>
-				<div class="card-content">
-					<div class="content has-text-right">
-						$<span class="is-size-2">1,000.00</span> USD
-					</div>
+	<div class="hero-circle"></div>
+</section>
+<section class="section">
+	<nav class="level is-mobile">
+		<div class="level-item has-text-centered">
+			<nav class="panel has-text-left">
+				<p class="panel-tabs">
+					<a class:is-active={personal} on:click={() => personal = true}>Personal</a>
+					<a class:is-active={!personal} on:click={() => personal = false}>Business</a>
+				</p>
+				<div class="panel-block">
+					{#if !createAcc}
+						<Login {personal} />
+						<p>Need an account? <a on:click={() => createAcc = true}>Register</a></p>
+					{:else}
+						<Register {personal} />
+						<p>Already have an account? <a on:click={() => createAcc = false}>Login</a></p>
+					{/if}
 				</div>
-			</div>
+			</nav>
 		</div>
-		<div class="column is-one-third">
-			<div class="card">
-				<header class="card-header">
-					<p class="card-header-title">
-						<span class="icon">
-							<i class="fab fa-bitcoin"></i>
-						</span>
-						Bitcoin
-					</p>
-					<a class="card-header-icon" aria-label="more options">
-						<span class="icon">
-							<i class="fas fa-angle-right" aria-hidden="true"></i>
-						</span>
-					</a>
-				</header>
-				<div class="card-content">
-					<div class="content has-text-right">
-						<span class="is-size-2">0.00000000</span> BTC
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="column is-one-third">
-			<div class="card">
-				<header class="card-header">
-					<p class="card-header-title">
-						<span class="icon">
-							<i class="fab fa-ethereum"></i>
-						</span>
-						Ethereum
-					</p>
-					<a class="card-header-icon" aria-label="more options">
-						<span class="icon">
-							<i class="fas fa-angle-right" aria-hidden="true"></i>
-						</span>
-					</a>
-				</header>
-				<div class="card-content">
-					<div class="content has-text-right">
-						<span class="is-size-2">0.00000000</span> ETH
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="column is-one-third">
-			<div class="card">
-				<header class="card-header">
-					<p class="card-header-title">
-						<span class="icon">
-							<img src="/saga-icon.svg">
-						</span>
-						SAGA Token
-					</p>
-					<a class="card-header-icon" aria-label="more options">
-						<span class="icon">
-							<i class="fas fa-angle-right" aria-hidden="true"></i>
-						</span>
-					</a>
-				</header>
-				<div class="card-content">
-					<div class="content has-text-right">
-						<span class="is-size-2">0.00000000</span> ST
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="column is-one-third">
-			<div class="card">
-				<header class="card-header">
-					<p class="card-header-title">
-						<span class="icon">
-							<img src="/saga-icon.svg">
-						</span>
-						SAGA Points
-					</p>
-					<a class="card-header-icon" aria-label="more options">
-						<span class="icon">
-							<i class="fas fa-angle-right" aria-hidden="true"></i>
-						</span>
-					</a>
-				</header>
-				<div class="card-content">
-					<div class="content has-text-right">
-						<span class="is-size-2">0.00000000</span> SP
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	{:else}
-	<div class="content">
-		<h1>You are not logged in.</h1>
-	</div>
-	{/if}
-</div>
+	</nav>
+</section>

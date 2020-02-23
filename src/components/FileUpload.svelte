@@ -6,12 +6,14 @@
     export let action;
     export let name;
     export let multiple = false;
-    export let label;
+    export let label = undefined;
+    export let button = true;
 
     export let accept = '*/*';
     export let resolve, reject;
 
-    let isDragging = false, isUploading = false;
+    let isDragging = false;
+    export let isUploading = false;
     
     let progressPercent = 0;
     let formEl, inputEl;
@@ -29,7 +31,7 @@
         }
     }
 
-    async function onSubmit(e) {
+    export async function submit(e) {
         if (isUploading) {
             return false;
         }
@@ -59,15 +61,17 @@
 
 <form
     method="POST"
-    action={`http://localhost:8000/${action}`}
+    {action}
     enctype="multipart/form-data"
-    on:submit|preventDefault={onSubmit}
+    on:submit|preventDefault={submit}
     bind:this={formEl}
 >
     <div class="field is-horizontal">
+        {#if label}
         <div class="field-label is-normal">
             <label class="label">{label}</label>
         </div>
+        {/if}
         <div class="field-body">
             <div class="field">
                 <div class="file has-name">
@@ -87,17 +91,19 @@
                                 <i class="fas fa-upload"></i>
                             </span>
                             <span class="file-label">
-                                {`Select ${multiple ? 'files' : 'a file'}&hellip;`}
+                                {`Select ${multiple ? 'files' : 'a file'}`}&hellip;
                             </span>
                         </span>
                         <span class="file-name">{fileLabel}</span>
                     </label>
                 </div>
-                <div class="control">
-                    {#if inputEl.files.length > 0}
-                        <button class="button" class:loading={isUploading} type="submit">Upload</button>
-                    {/if}
-                </div>
+                {#if button}
+                    <div class="control">
+                        {#if inputEl.files.length > 0}
+                            <button class="button" class:loading={isUploading} type="submit">Upload</button>
+                        {/if}
+                    </div>
+                {/if}
             </div>
         </div>
     </div>

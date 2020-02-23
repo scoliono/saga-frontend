@@ -23,17 +23,11 @@
 		$session.expanded = false;
 		if (expand) {
 			column.style.flex = '0.2';
+			setTimeout(() => { $session.expanded = expand; }, 500);
 		} else {
 			column.style.flex = '';
+			$session.expand = expand;
 		}
-		setTimeout(async () => {
-			$session.expanded = expand;
-			try {
-				await api.setSessionVar('expanded', expand);
-			} catch (err) {
-				console.warn('Failed to update session var "expanded": ' + err);
-			}
-		}, 500);
 	}
 </script>
 
@@ -46,7 +40,7 @@
 		flex: 0;
 		position: sticky;
 		margin-top: -4rem;
-		z-index: 99;
+		z-index: 50;
 		max-height: 100%;
 	}
 	aside.menu {

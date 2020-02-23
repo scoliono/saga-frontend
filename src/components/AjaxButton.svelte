@@ -14,7 +14,8 @@
 
     async function onClick(e) {
         dispatch('click', e);
-        if (!e.target.closest('form').checkValidity()) {
+        if (e.target.closest('form') &&
+            !e.target.closest('form').checkValidity()) {
             return false;
         } else {
             e.preventDefault();

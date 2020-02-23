@@ -10,6 +10,6 @@
 
 <footer class="footer">
     <div class="content has-text-centered">
-        <p>Copyright &copy; 2019 SAGA Foundation. All rights reserved.</p>
+        <p>Copyright &copy; {new Date().getFullYear()} SAGA Foundation. All rights reserved.</p>
     </div>
 </footer>

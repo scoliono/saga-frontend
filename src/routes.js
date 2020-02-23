@@ -2,7 +2,15 @@ const Routes = {
     '/': {
         slug: '/',
         label: 'Home',
-        icon: 'home'
+        protected: false,
+        guest: true,
+        hidden: true
+    },
+    '/dashboard': {
+        slug: '/dashboard',
+        label: 'Home',
+        icon: 'home',
+        protected: true
     },
     /*
     '/wallet': {
@@ -36,12 +44,14 @@ const Routes = {
     '/payrequest': {
         slug: '/payrequest',
         label: 'Pay or Request',
-        icon: 'file-invoice-dollar'
+        icon: 'file-invoice-dollar',
+        protected: true
     },
     '/convertexchange': {
-        slug: '/convertexchange/confirmation',
+        slug: '/convertexchange',
         label: 'Convert or Exchange',
-        icon: 'exchange-alt'
+        icon: 'exchange-alt',
+        protected: true
     },
     /*
     '/points': {
@@ -53,12 +63,14 @@ const Routes = {
     '/history': {
         slug: '/history',
         label: 'History',
-        icon: 'file-alt'
+        icon: 'file-alt',
+        protected: true
     },
     '/profile': {
         slug: '/profile',
         label: 'Profile',
-        icon: 'user-alt'
+        icon: 'user-alt',
+        protected: true
     },
     /*
     '/payment': {
@@ -71,6 +83,7 @@ const Routes = {
         slug: '/support',
         label: 'Support',
         icon: 'question-circle',
+        protected: false
         /*
         subitems: {
             '/terms': {
@@ -83,12 +96,16 @@ const Routes = {
     '/login': {
         slug: '/login',
         label: 'Login',
-        hidden: true
+        hidden: true,
+        protected: false,
+        guest: true
     },
     '/register': {
         slug: '/register',
         label: 'Register',
-        hidden: true
+        hidden: true,
+        protected: false,
+        guest: true
     }
 };
 

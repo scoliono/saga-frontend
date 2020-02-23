@@ -1,22 +1,24 @@
-<script context="module">
-    export function preload(page, session)
-    {
-        if (session.user) {
-            this.redirect(302, '/');
-        }
-    }
-</script>
-
 <script>
     import * as api from '../api.js';
     import { goto, stores } from '@sapper/app';
+    import { onMount } from 'svelte';
 	import { loading } from '../stores.js';
-    import InputField, { showErrors } from '../components/InputField.svelte';
+    import InputField from '../components/InputField.svelte';
     import AjaxButton from '../components/AjaxButton.svelte';
     const { preloading, page, session } = stores();
 
     let email = '', password = '', password_confirmation = '', tos = false;
     let disabled = false;
+    export let personal = undefined;
+    let showPersonal;
+
+    onMount(async () => {
+        showPersonal = personal === undefined;
+        if (showPersonal) {
+            personal = true;
+        }
+        await api.getCookie();
+    });
 
     let errors = {};
 
@@ -24,9 +26,6 @@
     {
         try {
             $session.user = response.user;
-            await api.setSessionVar('user', response.user);
-            $session.token = response.token;
-            await api.setToken(response.token);
         } catch (err) {
             bulmaToast({
                 message: 'Failed to store session data. Please try again.',
@@ -35,7 +34,7 @@
             return false;
         }
         bulmaToast('Logged in');
-        goto('/');
+        goto('/dashboard');
     }
 
     function onRegisterFailed(err)
@@ -53,7 +52,6 @@
             });
         }
         $session.user = null;
-        $session.token = null;
     }
 </script>
 
@@ -88,6 +86,14 @@
             type="password"
             bind:error={errors.password_confirmation}
         />
+        {#if showPersonal}
+        <div class="field">
+            <label class="label">Account Type</label>
+            <label for="personal">Merchant</label>
+            <input class="switch" type="checkbox" id="personal" name="personal" bind:checked={personal}>
+            <label for="personal">Personal</label>
+        </div>
+        {/if}
         <div class="field">
             <label>
                 <input type="checkbox" name="remember" required bind:checked={tos}>
@@ -101,7 +107,7 @@
             resolve={onRegister}
             reject={onRegisterFailed}
             submit
-            data={{ email, password, password_confirmation, tos }}
+            data={{ email, password, password_confirmation, tos, merchant: !personal }}
         >
             Register
         </AjaxButton>

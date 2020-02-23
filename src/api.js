@@ -1,18 +1,10 @@
 import axios from 'axios';
+import querystring from 'querystring';
 
 let request = axios.create({
-    baseURL: 'http://localhost:8000/'
+    timeout: 5000,
+    withCredentials: true
 });
-
-export function setToken(token)
-{
-    setSessionVar('token', token);
-    if (token) {
-        request.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    } else {
-        delete request.defaults.headers.common['Authorization'];
-    }
-}
 
 export async function get(url, data)
 {
@@ -28,17 +20,27 @@ export async function get(url, data)
     }
 }
 
-export async function post(url, data)
+export async function post(url, data, urlencode = true)
 {
     if (url[0] === '/') {
         url = url.slice(1);
     }
-    const response = await request.post(url, data);
+    let options = { headers: {} };
+    if (urlencode) {
+        data = querystring.stringify(data);
+        options.headers['content-type'] = 'application/x-www-form-urlencoded';
+    }
+    const response = await request.post(url, data, options);
     if (response.data.success) {
         return response.data;
     } else {
         throw new Error(`POST request to "${url}" failed: ${JSON.stringify(response.data.errors)}`);
     }
+}
+
+export async function getCookie()
+{
+    await request.get('airlock/csrf-cookie');
 }
 
 export async function user()
@@ -48,17 +50,6 @@ export async function user()
         return response.data.user;
     } else {
         throw new Error('Fetching current user returned no data: ' + JSON.stringify(response.data));
-    }
-}
-
-export async function setSessionVar(name, value)
-{
-    value = (value === null || value === undefined) ? null : JSON.stringify(value);
-    const response = await axios.post('/api/session', { name, value });
-    if (response.data.success) {
-        return true;
-    } else {
-        throw new Error(`Could not update session var "${name}": ${JSON.stringify(response.data)}`);
     }
 }
 
@@ -85,7 +76,6 @@ export async function logout()
 {
     const response = await request.post('api/logout');
     if (response.data.success) {
-        setToken();
         return response.data;
     } else {
         throw new Error('Logout failed: ' + JSON.stringify(response.data.errors));
