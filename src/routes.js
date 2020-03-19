@@ -106,6 +106,12 @@ const Routes = {
         hidden: true,
         protected: false,
         guest: true
+    },
+    '/email/verify': {
+        slug: '/email/verify',
+        label: 'Verify Email',
+        hidden: true,
+        protected: true
     }
 };
 
