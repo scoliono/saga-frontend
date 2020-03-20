@@ -1,5 +1,5 @@
 <script>
-    import * as api from '../../../api.js';
+    import * as api from '../../../../api.js';
     import { onMount } from 'svelte';
     import { goto } from '@sapper/app';
 
@@ -10,7 +10,7 @@
         const [ id, hash ] = window.location.pathname.substr('/email/verify/'.length).split('/');
 
         try {
-            let request = await api.get(`/api/email/verify/${id}/${hash}?expires=${expires}&signature=${signature}`);
+            let request = await api.get(`/api/email/verify/${id}/${hash}?signature=${signature}&expires=${expires}`);
             bulmaToast('Successfully verified email');
             goto('/profile');
         } catch (err) {
