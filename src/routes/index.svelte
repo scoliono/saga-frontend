@@ -1,5 +1,5 @@
 <svelte:head>
-	<title>SAGA.io</title>
+	<title>SAGA Pay</title>
 </svelte:head>
 
 <script>
@@ -48,8 +48,8 @@
 	:global(div.panel-block div.content) {
 		width: 100%;
 	}
-	:global(body.has-navbar-fixed-top) {
-		padding-top: 0;
+	section.hero {
+		margin-top: -4rem;
 	}
 </style>
 
