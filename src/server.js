@@ -5,10 +5,11 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import session from 'express-session';
 import * as sapper from '@sapper/server';
+import zlib from 'zlib';
 import routes from './routes.js';
 
-import * as api from './api.js';
-import Cookie from 'cookie-universal';
+// import * as api from './api.js';
+// import Cookie from 'cookie-universal';
 
 const { createProxyMiddleware } = require('http-proxy-middleware');
 let RedisStore = require('connect-redis')(session);
@@ -30,6 +31,29 @@ const apiProxy = createProxyMiddleware(
 				success: false,
 				message: 'Proxy error'
 			}));
+		},
+		onProxyRes: (proxyRes, req, res) => {
+			if (proxyRes.statusCode === 401) {
+				// if session expired on backend, clear the user object here
+				req.session.user = null;
+			} else {
+				let buf = Buffer.from([]);
+				let body;
+				proxyRes.on('data', chunk => {
+					buf = Buffer.concat([buf, chunk]);
+				}).on('end', () => {
+					try {
+						body = zlib.gunzipSync(buf).toString('utf8');
+						let response = JSON.parse(body);
+						if (response.user) {
+							// console.log('updated user: ', JSON.stringify(response.user));
+							req.session.user = response.user;
+						}
+					} catch (_) {
+						// likely means empty response
+					}
+				});
+			}
 		}
 	}
 );

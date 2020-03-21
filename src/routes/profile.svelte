@@ -12,6 +12,10 @@
     let user;
     let avatarModal, fileUpload, uploading;
 
+    onMount(async () => {
+        $session.user = await api.user();
+    });
+
     async function onUpdatedUserInfo()
     {
         bulmaToast('Successfully updated profile info');
