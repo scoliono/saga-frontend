@@ -7,16 +7,22 @@
     import { stores } from '@sapper/app';
     const { session } = stores();
 
-    let from_id, from_name = '', from_email = '', to_address = '', memo = '';
-    let receipt_list = [], discount_list = [];
+    let from_id, from_name, from_email, to_address, memo;
+    let receipt_list, discount_list;
+
+    const defaultItem = { name: '', quantity: 1, rate: 1.0 };
+    const defaultDiscount = { name: '', rate: -10.0 };
+    let newItem, newDiscount;
+
+    cleanData();
+
     $: subtotal = receipt_list.reduce((t, i) => t + i.rate * i.quantity, 0.0);
     $: multiplier = discount_list.reduce((t, i) => t + i.rate, 1.0);
     $: valueUnrounded = subtotal * multiplier;
 
-    const defaultItem = { name: '', quantity: 1, rate: 1.0 };
-    const defaultDiscount = { name: '', rate: -10.0 };
-    let newItem = defaultItem;
-    let newDiscount = defaultDiscount;
+    $: dirty = from_id || from_name || from_email || to_address || memo
+        || receipt_list.length || discount_list.length || newItem.name
+        || newDiscount.name;
 
     let errors = [];
     let createModal;
@@ -64,6 +70,20 @@
         discount_list.splice(i, 1);
         discount_list = discount_list;
     }
+
+    function cleanData()
+    {
+        from_name = '';
+        from_email = '';
+        to_address = '';
+        memo = '';
+        receipt_list = [];
+        discount_list = [];
+        newItem = {};
+        newDiscount = {};
+        Object.assign(newItem, defaultItem);
+        Object.assign(newDiscount, defaultDiscount);
+    }
 </script>
 
 <svelte:head>
@@ -81,7 +101,7 @@
 </div>
 
 <!-- Begin modals -->
-<CardModal bind:this={createModal} title="Create New Request">
+<CardModal bind:this={createModal} {dirty} on:closed={cleanData} title="Create New Request">
     <section class="modal-card-body">
         <form>
             <InputField
@@ -113,6 +133,7 @@
                 type="text"
                 label="Memo"
                 horizontal
+                required={false}
                 bind:value={memo}
                 placeholder="Optional"
                 bind:error={errors.memo}
@@ -142,7 +163,7 @@
                             <td>{item.quantity}</td>
                             <td>{new Number(item.rate * item.quantity).toFixed(3)} SAGA</td>
                             <td>
-                                <button on:click={() => { removeItem(i); }} class="button">
+                                <button on:click|preventDefault={() => { removeItem(i); }} class="button">
                                     <span class="icon">
                                         <i class="fas fa-trash"></i>
                                     </span>
@@ -161,7 +182,7 @@
                             <input class="input" type="number" min="0" bind:value={newItem.quantity}>
                         </td>
                         <td>
-                            <button class="button" on:click={addItem}>
+                            <button class="button" on:click|preventDefault={addItem}>
                                 <span class="icon">
                                     <i class="fas fa-plus"></i>
                                 </span>
@@ -199,7 +220,7 @@
                             <td>{discount.name}</td>
                             <td>{discount.rate * 100}%</td>
                             <td>
-                                <button on:click={() => { removeDiscount(i) }} class="button">
+                                <button on:click|preventDefault={() => { removeDiscount(i) }} class="button">
                                     <span class="icon">
                                         <i class="fas fa-trash"></i>
                                     </span>
@@ -211,7 +232,7 @@
                         <td><input class="input" type="text" bind:value={newDiscount.name}></td>
                         <td><input class="input" type="number" bind:value={newDiscount.rate}>%</td>
                         <td>
-                            <button on:click={addDiscount} class="button">
+                            <button on:click|preventDefault={addDiscount} class="button">
                                 <span class="icon">
                                     <i class="fas fa-plus"></i>
                                 </span>
@@ -235,7 +256,7 @@
     </section>
     <footer class="modal-card-foot">
         <AjaxButton
-            action="/api/order"
+            action="/api/order/create"
             method="post"
             classes="is-info"
             data={{
@@ -246,18 +267,19 @@
             }}
             resolve={() => {
                 bulmaToast('Successfully requested payment');
+                createModal.close();
             }}
             reject={err => {
                 errors = err.response.data.errors;
                 bulmaToast({
-                    message: 'Failed to request payment',
+                    message: errors[0] || 'Failed to request payment',
                     type: 'is-danger'
                 });
             }}
         >
             Create
         </AjaxButton>
-        <button class="button" on:click={createModal.close}>Cancel</button>
+        <button class="button" on:click|preventDefault={createModal.close}>Cancel</button>
     </footer>
 </CardModal>
 <!-- End modals -->

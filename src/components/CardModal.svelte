@@ -1,16 +1,28 @@
 <script>
+	import { createEventDispatcher } from 'svelte';
+	const dispatch = createEventDispatcher();
+
     export let title;
+    export let dirty = false;
 
     let visible = false;
 
     export function close()
     {
+        if (dirty) {
+            if (!confirm('You will lose whatever data you have ' +
+                         'entered if you proceed. Continue?')) {
+                return;
+            }
+        }
         visible = false;
+        dispatch('closed');
     }
 
     export function open()
     {
         visible = true;
+        dispatch('opened');
     }
 </script>
 
