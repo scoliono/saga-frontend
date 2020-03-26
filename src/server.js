@@ -65,7 +65,7 @@ polka() // You can also use Express
 		saveUninitialized: false,
 		secret: SESSION_SECRET,
 		cookie: {
-			maxAge: 31536000
+			maxAge: 7200000
 		},
 		store: new RedisStore({ client: redisClient })
 	}))

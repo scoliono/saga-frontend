@@ -50,6 +50,7 @@
 <div class="container">
     <h1 class="title">Profile</h1>
 	<div class="columns panel has-background-white" style="width:70%;">
+    {#if $session.user}
         <div class="column is-6 has-text-centered">
             <figure class="image is-128x128">
                 <img class="is-rounded" src={'/' + ($session.user.avatar || 'saga-icon.svg')} alt="Avatar">
@@ -314,6 +315,9 @@
                 <small>Your phone and location will be publicly available.</small>
             </div>
         </div>
+    {:else}
+        Loading profile data&hellip;
+    {/if}
     </div>
 </div>
 

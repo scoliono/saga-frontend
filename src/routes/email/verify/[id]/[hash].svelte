@@ -1,14 +1,13 @@
 <script>
     import * as api from '../../../../api.js';
     import { onMount } from 'svelte';
-    import { goto } from '@sapper/app';
+    import { goto, stores } from '@sapper/app';
+    const { session, page, preloading } = stores();
+
+    let { expires, signature } = $page.query;
+    let { id, hash } = $page.params;
 
     onMount(async () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const expires = urlParams.get('expires');
-        const signature = urlParams.get('signature');
-        const [ id, hash ] = window.location.pathname.substr('/email/verify/'.length).split('/');
-
         try {
             let request = await api.get(`/api/email/verify/${id}/${hash}?signature=${signature}&expires=${expires}`);
             bulmaToast('Successfully verified email');

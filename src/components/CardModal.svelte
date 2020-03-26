@@ -1,5 +1,5 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
+	import { onMount, createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
 
     export let title;
@@ -7,9 +7,17 @@
 
     let visible = false;
 
-    export function close()
+    onMount(() => {
+        window.onbeforeunload = e => {
+            if (dirty) {
+                e.preventDefault();
+            }
+        };
+    });
+
+    export function close(force)
     {
-        if (dirty) {
+        if (dirty && force !== true) {
             if (!confirm('You will lose whatever data you have ' +
                          'entered if you proceed. Continue?')) {
                 return;

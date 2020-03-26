@@ -24,7 +24,7 @@
         || receipt_list.length || discount_list.length || newItem.name
         || newDiscount.name;
 
-    let errors = [];
+    let errors = {};
     let createModal;
 
     function addItem()
@@ -267,7 +267,7 @@
             }}
             resolve={() => {
                 bulmaToast('Successfully requested payment');
-                createModal.close();
+                createModal.close(true);
             }}
             reject={err => {
                 errors = err.response.data.errors;

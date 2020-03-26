@@ -16,7 +16,11 @@ window.bulmaToast = args => {
 };
 
 import Echo from 'laravel-echo';
-window.Echo = Echo;
+window.io = require('socket.io-client');
+window.Echo = new Echo({
+	broadcaster: 'socket.io',
+	host: window.location.hostname + ':6001'
+});
 
 sapper.start({
 	target: document.querySelector('#sapper')
