@@ -11,10 +11,33 @@
     let editing = false, editingPhone = false, editingLocation = false;
     let user;
     let avatarModal, fileUpload, uploading;
+    let ethModal, newEth = '', ethErrors = {};
 
     onMount(async () => {
         $session.user = await api.user();
     });
+
+    function addEth()
+    {
+        if (newEth === '') {
+            bulmaToast({
+                message: 'You must enter an Ethereum address.',
+                type: 'is-danger'
+            });
+            return;
+        }
+        ethErrors = {};
+        $session.user.eth = [...$session.user.eth, newEth];
+        newEth = '';
+    }
+
+    function removeEth(i)
+    {
+        ethErrors = {};
+        $session.user.eth.splice(i, 1);
+        // just svelte things
+        $session.user.eth = $session.user.eth;
+    }
 
     async function onUpdatedUserInfo()
     {
@@ -96,43 +119,57 @@
                 </div>
                 {/if}
             </h2>
-            <div class="level" style="justify-content:space-evenly;">
+            <div class="columns is-multiline">
                 {#if !editing}
                     {#if !$session.user.verified}
+                    <div class="column is-one-half">
                         <button class="button is-rounded" on:click={() => { editing = true }}>
                             <span class="icon">
                                 <i class="fas fa-edit"></i>
                             </span>
                             <span>Edit</span>
                         </button>
+                    </div>
                     {/if}
-                    <AjaxButton
-                        method="post"
-                        action="/api/password/email"
-                        classes="is-rounded"
-                        data={{ email: $session.user.email }}
-                        resolve={response => {
-                            bulmaToast(response.message)
-                        }}
-                        reject={err => {
-                            bulmaToast({
-                                message: err.message
-                                    || 'Unknown error sending password reset email',
-                                type: 'is-danger'
-                            });
-                        }}
-                    >
-                        <span class="icon">
-                            <i class="fas fa-key"></i>
-                        </span>
-                        <span>Change Password</span>
-                    </AjaxButton>
-                    <button class="button is-rounded" on:click={avatarModal.open}>
-                        <span class="icon">
-                            <i class="fas fa-image"></i>
-                        </span>
-                        <span>Change Avatar</span>
-                    </button>
+                    <div class="column is-one-half">
+                        <AjaxButton
+                            method="post"
+                            action="/api/password/email"
+                            classes="is-rounded"
+                            data={{ email: $session.user.email }}
+                            resolve={response => {
+                                bulmaToast(response.message)
+                            }}
+                            reject={err => {
+                                bulmaToast({
+                                    message: err.message
+                                        || 'Unknown error sending password reset email',
+                                    type: 'is-danger'
+                                });
+                            }}
+                        >
+                            <span class="icon">
+                                <i class="fas fa-key"></i>
+                            </span>
+                            <span>Change Password</span>
+                        </AjaxButton>
+                    </div>
+                    <div class="column is-one-half">
+                        <button class="button is-rounded" on:click={avatarModal.open}>
+                            <span class="icon">
+                                <i class="fas fa-image"></i>
+                            </span>
+                            <span>Change Avatar</span>
+                        </button>
+                    </div>
+                    <div class="column is-one-half">
+                        <button class="button is-rounded" on:click={ethModal.open}>
+                            <span class="icon">
+                                <i class="fab fa-ethereum"></i>
+                            </span>
+                            <span>Edit Ethereum Addresses</span>
+                        </button>
+                    </div>
                 {:else}
                     <AjaxButton
                         method="post"
@@ -140,7 +177,7 @@
                         classes="is-rounded is-info"
                         data={{
                             first_name: $session.user.first_name,
-                            middle_name: $session.user.middle_name, 
+                            middle_name: $session.user.middle_name,
                             last_name: $session.user.last_name,
                             gender: $session.user.gender,
                             birthday: $session.user.birthday
@@ -355,6 +392,77 @@
             class:is-loading={uploading}
         >
             Upload
+        </button>
+    </footer>
+</CardModal>
+<CardModal bind:this={ethModal} title="Edit Ethereum Addresses">
+    <section class="modal-card-body">
+        <div class="content">
+            <h3>Your Ethereum Addresses</h3>
+            {#if $session.user}
+                {#if $session.user.eth.length > 0}
+                <ul>
+                    {#each $session.user.eth as eth, i}
+                        <li>
+                            <span>{eth}</span>
+                            <button on:click|preventDefault={() => { removeEth(i); }} class="button is-small">
+                                <span class="icon">
+                                    <i class="fas fa-trash"></i>
+                                </span>
+                            </button>
+                            {#if ethErrors[`eth.${i}`]}
+                                <p class="has-text-danger is-size-7">{ethErrors[`eth.${i}`][0]}</p>
+                            {/if}
+                        </li>
+                    {/each}
+                </ul>
+                {:else}
+                    <p>You currently have no Ethereum addresses.</p>
+                {/if}
+            {/if}
+            <div class="columns">
+                <div class="column">
+                    <input type="text" class="input" maxlength="66" placeholder="0xABCDEF..." bind:value={newEth}>
+                </div>
+                <div class="column is-narrow">
+                    <button class="button" on:click|preventDefault={addEth}>
+                        <span class="icon">
+                            <i class="fas fa-plus"></i>
+                        </span>
+                        <span>Add</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer class="modal-card-foot">
+        <AjaxButton
+            action="/api/profile/wallets"
+            method="post"
+            classes="is-info"
+            data={{
+                'eth[]': $session.user.eth
+            }}
+            resolve={res => {
+                bulmaToast('Successfully updated Ethereum addresses');
+                ethModal.close(true);
+                $session.user.eth = res.eth;
+            }}
+            reject={err => {
+                ethErrors = err.response.data.errors;
+                bulmaToast({
+                    message: 'Failed to update Ethereum addresses',
+                    type: 'is-danger'
+                });
+            }}
+        >
+            Save
+        </AjaxButton>
+        <button class="button" on:click|preventDefault={async () => {
+            ethModal.close();
+            $session.user = await api.user();
+        }}>
+            Cancel
         </button>
     </footer>
 </CardModal>

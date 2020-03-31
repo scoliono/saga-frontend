@@ -53,7 +53,7 @@
         bulmaToast(`Redirecting to <a target="_blank" href="${data.url}">payment gateway</a>...`);
         setTimeout(() => {
             window.open(data.url, '_blank').focus();
-        }, 3000);
+        }, 2000);
     }
 
     function onPaymentConfirmationFailed(err)

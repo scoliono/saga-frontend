@@ -44,8 +44,10 @@
                         on:input={onInput}>
                 </div>
             </div>
-            <p class="help is-danger">{error || ''}</p>
         </div>
+    </div>
+    <div class="field is-horizontal">
+        <p class="help is-danger">{error || ''}</p>
     </div>
 {:else}
     <div class="field">

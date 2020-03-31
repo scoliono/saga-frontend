@@ -48,6 +48,7 @@
     function removeItem(i)
     {
         receipt_list.splice(i, 1);
+        // svelte is weird sometimes
         receipt_list = receipt_list;
     }
 
@@ -120,14 +121,35 @@
                 bind:value={from_email}
                 bind:error={errors.from_email}
             />
-            <InputField
-                name="to_address"
-                type="text"
-                label="Your ETH Address"
-                horizontal
-                bind:value={to_address}
-                bind:error={errors.to_address}
-            />
+            <div class="field is-horizontal">
+                <div class="field-label">
+                    <label class="label">Your ETH Address</label>
+                </div>
+                <div class="field-body">
+                    <div class="field">
+                        <div class="control">
+                            <div class:is-danger={!!errors.to_address} class="select">
+                                <select name="to_address" id="to_address" bind:value={to_address}>
+                                {#if !$session.user.eth.length}
+                                    <option selected disabled>N/A</option>
+                                {:else}
+                                    <option selected disabled>Select an Address&hellip;</option>
+                                    {#each $session.user.eth as eth}
+                                        <option value={eth}>{eth}</option>
+                                    {/each}
+                                {/if}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-horizontal">
+                <p class="help is-danger">{errors.to_address || ''}</p>
+            </div>
+            <div class="field is-horizontal">
+                <p class="is-size-7">Don't see any addresses here? Go to your <a href="/profile">profile</a> to add them.</p>
+            </div>
             <InputField
                 name="memo"
                 type="text"
