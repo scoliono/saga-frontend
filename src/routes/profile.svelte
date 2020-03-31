@@ -400,7 +400,7 @@
         <div class="content">
             <h3>Your Ethereum Addresses</h3>
             {#if $session.user}
-                {#if $session.user.eth.length > 0}
+                {#if $session.user.eth}
                 <ul>
                     {#each $session.user.eth as eth, i}
                         <li>
