@@ -130,7 +130,7 @@
                         <div class="control">
                             <div class:is-danger={!!errors.to_address} class="select">
                                 <select name="to_address" id="to_address" bind:value={to_address}>
-                                {#if !$session.user.eth.length}
+                                {#if !$session.user.eth || !$session.user.eth.length}
                                     <option selected disabled>N/A</option>
                                 {:else}
                                     <option selected disabled>Select an Address&hellip;</option>

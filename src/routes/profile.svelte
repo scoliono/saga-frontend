@@ -27,7 +27,7 @@
             return;
         }
         ethErrors = {};
-        $session.user.eth = [...$session.user.eth, newEth];
+        $session.user.eth = $session.user.eth === null ? [newEth] : [...$session.user.eth, newEth];
         newEth = '';
     }
 
@@ -400,7 +400,7 @@
         <div class="content">
             <h3>Your Ethereum Addresses</h3>
             {#if $session.user}
-                {#if $session.user.eth}
+                {#if $session.user.eth && $session.user.eth.length}
                 <ul>
                     {#each $session.user.eth as eth, i}
                         <li>
